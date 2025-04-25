@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>商品列表</h2>
+<div class="filters">
+    <a href="?country=France">法国商品</a>  <!-- 简单筛选示例 -->
+</div>
+<form action="{% url 'add_to_cart' product.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">加入购物车</button>
+</form>
+<form method="get">
+    <input type="text" name="q" placeholder="搜索商品...">
+    <button type="submit">搜索</button>
+</form>
+<ul>
+    {% for product in page_obj %}
+    <li>
+        <a href="{% url 'product_detail' product.id %}">
+            {{ product.name }} - ¥{{ product.price }} (库存: {{ product.inventory }})
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% include 'pagination.html' %}  <!-- 分页导航 -->
+{% endblock %}
