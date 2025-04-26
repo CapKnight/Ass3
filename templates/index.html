@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Wine Sales{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Wine Sales</h1>
+    <p>Browse our collection of fine wines from around the world.</p>
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'product_list' %}" style="margin-right: 1rem; color: #333; text-decoration: none;">View Products</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'order_list' %}" style="color: #333; text-decoration: none;">View Your Orders</a>
+        {% else %}
+            <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">Login to Start Shopping</a>
+        {% endif %}
+    </div>
+{% endblock %}

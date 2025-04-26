@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Wine Sales{% endblock %}
+
+{% block content %}
+    <h1>Register</h1>
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
+        </div>
+        <button type="submit" style="padding: 0.5rem 1rem; background-color: #333; color: #fff; border: none; cursor: pointer;">Register</button>
+    </form>
+    <p style="margin-top: 1rem;">Already have an account? <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">Login here</a>.</p>
+{% endblock %}

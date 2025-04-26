@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Wine Sales{% endblock %}
+
+{% block content %}
+    <h1>Your Profile</h1>
+    {% if user.is_authenticated %}
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
+        <a href="{% url 'logout' %}" style="color: #333; text-decoration: none;">Logout</a>
+    {% else %}
+        <p>Please <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">log in</a> to view your profile.</p>
+    {% endif %}
+{% endblock %}

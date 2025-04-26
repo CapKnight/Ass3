@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Products - Wine Sales{% endblock %}
+
+{% block content %}
+    <h1>Our Products</h1>
+    <p>Explore our curated selection of wines.</p>
+
+    <!-- 商品表格 -->
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+                <th style="padding: 0.5rem; text-align: left;">Name</th>
+                <th style="padding: 0.5rem; text-align: left;">Country</th>
+                <th style="padding: 0.5rem; text-align: left;">Region</th>
+                <th style="padding: 0.5rem; text-align: left;">Winery</th>
+                <th style="padding: 0.5rem; text-align: left;">Rating</th>
+                <th style="padding: 0.5rem; text-align: left;">Number of Ratings</th>
+                <th style="padding: 0.5rem; text-align: left;">Price</th>
+                <th style="padding: 0.5rem; text-align: left;">Year</th>
+                <th style="padding: 0.5rem; text-align: left;">Inventory</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in page_obj %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 0.5rem;">{{ product.name }}</td>
+                    <td style="padding: 0.5rem;">{{ product.country }}</td>
+                    <td style="padding: 0.5rem;">{{ product.region }}</td>
+                    <td style="padding: 0.5rem;">{{ product.winery }}</td>
+                    <td style="padding: 0.5rem;">{{ product.rating }}</td>
+                    <td style="padding: 0.5rem;">{{ product.number_of_ratings }}</td>
+                    <td style="padding: 0.5rem;">${{ product.price }}</td>
+                    <td style="padding: 0.5rem;">{{ product.year|default:"N/A" }}</td>
+                    <td style="padding: 0.5rem;">{{ product.inventory }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="9" style="padding: 0.5rem; text-align: center;">No products available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 分页导航 -->
+    <div style="margin-top: 2rem; text-align: center;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" style="margin: 0 0.5rem; color: #333; text-decoration: none;">Previous</a>
+        {% else %}
+            <span style="margin: 0 0.5rem; color: #aaa;">Previous</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span style="margin: 0 0.5rem; font-weight: bold;">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}" style="margin: 0 0.5rem; color: #333; text-decoration: none;">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" style="margin: 0 0.5rem; color: #333; text-decoration: none;">Next</a>
+        {% else %}
+            <span style="margin: 0 0.5rem; color: #aaa;">Next</span>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -2,19 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}E-commerce App{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Wine Sales{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* Navigation Bar */
+        nav {
+            background-color: #333;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand a {
+            color: #fff;
+            font-size: 1.5rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .nav-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        /* Footer */
+        footer {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+        footer p {
+            margin: 0.5rem 0;
+            color: #555;
+        }
+        footer a {
+            color: #333;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <header>
-        <h1><a href="/">My Store</a></h1>
-        <nav>
-            <a href="{% url 'product_list' %}">Products</a>
-            <a href="{% url 'cart' %}">Cart</a>
-        </nav>
-    </header>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{% url 'home' %}">Wine Sales</a>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'product_list' %}">Products</a>
+                <a href="{% url 'order_list' %}">Orders</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
     <main>
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Wine Sales. All rights reserved.</p>
+        <p>Contact us at: <a href="mailto:support@winesales.com">support@winesales.com</a></p>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
