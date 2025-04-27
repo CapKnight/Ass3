@@ -3,6 +3,104 @@
 {% block title %}Orders - Wine Sales{% endblock %}
 
 {% block content %}
+    <style>
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        a, button {
+            padding: 0.3rem;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        a:hover, button:hover {
+            background-color: #555;
+        }
+        button.cancel {
+            background-color: #d9534f;
+        }
+        button.cancel:hover {
+            background-color: #c9302c;
+        }
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .modal-content h2 {
+            margin-bottom: 1rem;
+        }
+        .modal-content p.warning {
+            color: #d9534f;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .modal-content input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .modal-content .buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .modal-content button {
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .modal-content .confirm {
+            background-color: #333;
+            color: #fff;
+        }
+        .modal-content .confirm:hover {
+            background-color: #555;
+        }
+        .modal-content .cancel {
+            background-color: #d9534f;
+            color: #fff;
+        }
+        .modal-content .cancel:hover {
+            background-color: #c9302c;
+        }
+    </style>
+
     <h1>Your Orders</h1>
     {% if messages %}
         <ul style="color: green;">
@@ -12,51 +110,131 @@
         </ul>
     {% endif %}
 
-    <form method="post" action="{% url 'pay_selected_orders' %}">
+    <form id="pay-selected-form" method="post" action="{% url 'pay_selected_orders' %}">
         {% csrf_token %}
-        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <table>
             <thead>
-                <tr style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
-                    <th style="padding: 0.5rem; text-align: left;">Select</th>
-                    <th style="padding: 0.5rem; text-align: left;">Order ID</th>
-                    <th style="padding: 0.5rem; text-align: left;">Product</th>
-                    <th style="padding: 0.5rem; text-align: left;">Quantity</th>
-                    <th style="padding: 0.5rem; text-align: left;">Total Price</th>
-                    <th style="padding: 0.5rem; text-align: left;">Order Date</th>
-                    <th style="padding: 0.5rem; text-align: left;">Status</th>
-                    <th style="padding: 0.5rem; text-align: left;">Actions</th>
+                <tr>
+                    <th>Select</th>
+                    <th>Order ID</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
                     <tr>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">
+                        <td>
                             <input type="checkbox" name="selected_orders" value="{{ order.id }}">
                         </td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">#{{ order.id }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.product.name }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.quantity }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">${{ order.total_price }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.order_date|date:"F d, Y" }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.status }}</td>
-                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.product.name }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>${{ order.total_price }}</td>
+                        <td>{{ order.order_date|date:"F d, Y" }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>
                             {% if order.status == 'Pending' %}
-                                <a href="{% url 'pay_order' order.id %}" style="padding: 0.3rem; background-color: #333; color: #fff; text-decoration: none;">Pay</a>
+                                <a href="{% url 'pay_order' order.id %}" class="pay-button">Pay</a>
                             {% endif %}
                             {% if order.status == 'Pending' or order.status == 'Paid' %}
-                                <a href="{% url 'cancel_order' order.id %}" style="padding: 0.3rem; background-color: #d9534f; color: #fff; text-decoration: none; margin-left: 0.5rem;">Cancel Order</a>
+                                <a href="{% url 'cancel_order' order.id %}" class="cancel">Cancel Order</a>
                             {% endif %}
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="8" style="padding: 0.5rem; text-align: center;">No orders found.</td>
+                        <td colspan="8" style="text-align: center;">No orders found.</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
         <div style="margin-top: 1rem;">
-            <button type="submit" style="padding: 0.5rem; background-color: #333; color: #fff; border: none;">Pay Selected</button>
+            <button type="button" id="pay-selected-button">Pay Selected</button>
         </div>
     </form>
+
+    <!-- 支付弹窗 -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <h2>Simulated Payment</h2>
+            <p class="warning">This is a simulated payment. No real information is required.</p>
+            <form id="payment-form">
+                <label>Card Number</label>
+                <input type="text" placeholder="1234 5678 9012 3456">
+                <label>Expiration Date</label>
+                <input type="text" placeholder="MM/YY">
+                <label>CVV</label>
+                <input type="text" placeholder="123">
+                <div class="buttons">
+                    <button type="button" class="confirm" id="confirm-payment">Confirm Payment</button>
+                    <button type="button" class="cancel" id="cancel-payment">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 获取弹窗和按钮元素
+        const modal = document.getElementById('payment-modal');
+        const confirmButton = document.getElementById('confirm-payment');
+        const cancelButton = document.getElementById('cancel-payment');
+        const payButtons = document.querySelectorAll('.pay-button');
+        const paySelectedButton = document.getElementById('pay-selected-button');
+        const paySelectedForm = document.getElementById('pay-selected-form');
+
+        let currentAction = null;
+
+        // 显示弹窗
+        function showModal(action) {
+            currentAction = action;
+            modal.style.display = 'flex';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            modal.style.display = 'none';
+            currentAction = null;
+        }
+
+        // 单个订单支付按钮
+        payButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal(() => {
+                    window.location.href = button.href; // 跳转到支付链接
+                });
+            });
+        });
+
+        // 批量支付按钮
+        paySelectedButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedOrders = paySelectedForm.querySelectorAll('input[name="selected_orders"]:checked');
+            if (selectedOrders.length === 0) {
+                alert('Please select at least one order to pay.');
+                return;
+            }
+            showModal(() => {
+                paySelectedForm.submit(); // 提交批量支付表单
+            });
+        });
+
+        // 确认支付
+        confirmButton.addEventListener('click', () => {
+            if (currentAction) {
+                currentAction();
+            }
+            closeModal();
+        });
+
+        // 取消支付
+        cancelButton.addEventListener('click', () => {
+            closeModal();
+        });
+    </script>
 {% endblock %}

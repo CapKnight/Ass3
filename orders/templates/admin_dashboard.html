@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Wine Sales{% endblock %}
+
+{% block content %}
+    <style>
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .stat-card p {
+            font-size: 1.5rem;
+            margin: 0.5rem 0 0;
+            color: #555;
+        }
+        .chart-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <h1>Admin Dashboard</h1>
+    <p>Overview of orders and sales data.</p>
+
+    <!-- 统计卡片 -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Total Orders</h3>
+            <p>{{ total_orders }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Revenue</h3>
+            <p>${{ total_revenue|floatformat:2 }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Pending Orders</h3>
+            <p>{{ status_counts.Pending }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Paid Orders</h3>
+            <p>{{ status_counts.Paid }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Cancelled Orders</h3>
+            <p>{{ status_counts.Cancelled }}</p>
+        </div>
+    </div>
+
+    <!-- 订单趋势图表 -->
+    <div class="chart-container">
+        <canvas id="ordersChart"></canvas>
+    </div>
+
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('ordersChart').getContext('2d');
+        const ordersChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ date_labels|safe }},
+                datasets: [{
+                    label: 'Orders per Day',
+                    data: {{ orders_by_date|safe }},
+                    borderColor: '#333',
+                    backgroundColor: 'rgba(51, 51, 51, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Orders'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

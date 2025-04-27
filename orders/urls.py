@@ -1,10 +1,14 @@
 from django.urls import path
-from . import views
+from products.views import product_list, product_detail
+from orders.views import order_list, pay_order, pay_selected_orders, cancel_order, admin_dashboard
 
 urlpatterns = [
-    path('', views.order_list, name='order_list'),
-    path('create/<int:product_id>/', views.create_order, name='create_order'),
-    path('pay/<int:order_id>/', views.pay_order, name='pay_order'),
-    path('cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
-    path('pay-selected/', views.pay_selected_orders, name='pay_selected_orders'),
+    path('', product_list, name='product_list'),
+    path('products/<int:product_id>/', product_detail, name='product_detail'),
+    path('products/<int:product_id>/create_order/', pay_order, name='create_order'),
+    path('orders/', order_list, name='order_list'),
+    path('orders/<int:order_id>/pay/', pay_order, name='pay_order'),
+    path('orders/pay_selected/', pay_selected_orders, name='pay_selected_orders'),
+    path('orders/<int:order_id>/cancel/', cancel_order, name='cancel_order'),
+    path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
 ]

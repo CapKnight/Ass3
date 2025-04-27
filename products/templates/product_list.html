@@ -4,6 +4,28 @@
 
 {% block content %}
     <style>
+        .filter-search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-search-form select, .filter-search-form input[type="text"], .filter-search-form input[type="number"] {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .filter-search-form button {
+            padding: 0.5rem 1rem;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .filter-search-form button:hover {
+            background-color: #555;
+        }
         .pagination {
             margin-top: 2rem;
             text-align: center;
@@ -80,6 +102,37 @@
     <h1>Our Products</h1>
     <p>Explore our curated selection of wines.</p>
 
+    <!-- 筛选和搜索表单 -->
+    <form method="get" class="filter-search-form">
+        <select name="country">
+            <option value="">All Countries</option>
+            {% for country in countries %}
+                <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}</option>
+            {% endfor %}
+        </select>
+        <select name="region">
+            <option value="">All Regions</option>
+            {% for region in regions %}
+                <option value="{{ region }}" {% if selected_region == region %}selected{% endif %}>{{ region }}</option>
+            {% endfor %}
+        </select>
+        <select name="winery">
+            <option value="">All Wineries</option>
+            {% for winery in wineries %}
+                <option value="{{ winery }}" {% if selected_winery == winery %}selected{% endif %}>{{ winery }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="search" placeholder="Search by name, country, region, winery..." value="{{ search_query }}">
+        <input type="number" name="min_price" placeholder="Min Price" value="{{ min_price }}" step="0.01" min="0">
+        <input type="number" name="max_price" placeholder="Max Price" value="{{ max_price }}" step="0.01" min="0">
+        <select name="sort">
+            <option value="">Default</option>
+            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+        </select>
+        <button type="submit">Filter & Search</button>
+    </form>
+
     <table>
         <thead>
             <tr>
@@ -91,18 +144,24 @@
         </thead>
         <tbody>
             {% for product in products %}
-                <tr>
-                    <td><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></td>
-                    <td>{{ product.country }}</td>
-                    <td>${{ product.price }}</td>
-                    <td>
-                        <form method="post" action="{% url 'create_order' product.id %}" class="quantity-form">
-                            {% csrf_token %}
-                            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory }}" required>
-                            <button type="submit">Add to Order</button>
-                        </form>
-                    </td>
-                </tr>
+                {% if product.id %}
+                    <tr>
+                        <td><a href="{% url 'product_detail' product.id %}">{{ product.name|default:"N/A" }}</a></td>
+                        <td>{{ product.country|default:"N/A" }}</td>
+                        <td>${{ product.price|default:"N/A" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'create_order' product.id %}" class="quantity-form">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory|default:0 }}" required>
+                                <button type="submit">Add to Order</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: red;">Invalid product data (ID missing).</td>
+                    </tr>
+                {% endif %}
             {% empty %}
                 <tr>
                     <td colspan="4" style="text-align: center;">No products available.</td>
@@ -114,7 +173,7 @@
     {% if products.has_other_pages %}
         <div class="pagination">
             {% if products.has_previous %}
-                <a href="?page={{ products.previous_page_number }}">Previous</a>
+                <a href="?page={{ products.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
             {% else %}
                 <span class="disabled">Previous</span>
             {% endif %}
@@ -123,12 +182,12 @@
                 {% if products.number == num %}
                     <span class="current">{{ num }}</span>
                 {% else %}
-                    <a href="?page={{ num }}">{{ num }}</a>
+                    <a href="?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
 
             {% if products.has_next %}
-                <a href="?page={{ products.next_page_number }}">Next</a>
+                <a href="?page={{ products.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
             {% else %}
                 <span class="disabled">Next</span>
             {% endif %}
