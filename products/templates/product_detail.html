@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} - Wine Sales{% endblock %}
+
+{% block content %}
+    <style>
+        .product-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .product-detail h1 {
+            margin-bottom: 1rem;
+        }
+        .product-detail dl {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .product-detail dt {
+            font-weight: bold;
+        }
+        .product-detail dd {
+            margin: 0;
+        }
+        .product-detail .quantity-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .product-detail .quantity-form input[type="number"] {
+            width: 60px;
+            padding: 0.3rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .product-detail .quantity-form button {
+            padding: 0.5rem 1rem;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .product-detail .quantity-form button:hover {
+            background-color: #555;
+        }
+    </style>
+
+    <div class="product-detail">
+        <h1>{{ product.name }}</h1>
+        <dl>
+            <dt>Name:</dt>
+            <dd>{{ product.name }}</dd>
+            <dt>Country:</dt>
+            <dd>{{ product.country }}</dd>
+            <dt>Region:</dt>
+            <dd>{{ product.region }}</dd>
+            <dt>Winery:</dt>
+            <dd>{{ product.winery }}</dd>
+            <dt>Rating:</dt>
+            <dd>{{ product.rating }}</dd>
+            <dt>Number of Ratings:</dt>
+            <dd>{{ product.number_of_ratings }}</dd>
+            <dt>Price:</dt>
+            <dd>${{ product.price }}</dd>
+            <dt>Year:</dt>
+            <dd>{{ product.year|default:"N/A" }}</dd>
+            <dt>Inventory:</dt>
+            <dd>{{ product.inventory }}</dd>
+        </dl>
+        <form method="post" action="{% url 'create_order' product.id %}" class="quantity-form">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory }}" required>
+            <button type="submit">Add to Order</button>
+        </form>
+    </div>
+{% endblock %}

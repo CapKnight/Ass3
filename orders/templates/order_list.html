@@ -11,13 +11,52 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <ul style="list-style: none; padding: 0;">
-        {% for order in orders %}
-            <li style="margin: 0.5rem 0;">
-                Order {{ order.product.name }} - Quantity: {{ order.quantity }} - Total: ${{ order.total_price }} - Placed on {{ order.order_date|date:"F d, Y" }}
-            </li>
-        {% empty %}
-            <li>No orders found.</li>
-        {% endfor %}
-    </ul>
+
+    <form method="post" action="{% url 'pay_selected_orders' %}">
+        {% csrf_token %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <thead>
+                <tr style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+                    <th style="padding: 0.5rem; text-align: left;">Select</th>
+                    <th style="padding: 0.5rem; text-align: left;">Order ID</th>
+                    <th style="padding: 0.5rem; text-align: left;">Product</th>
+                    <th style="padding: 0.5rem; text-align: left;">Quantity</th>
+                    <th style="padding: 0.5rem; text-align: left;">Total Price</th>
+                    <th style="padding: 0.5rem; text-align: left;">Order Date</th>
+                    <th style="padding: 0.5rem; text-align: left;">Status</th>
+                    <th style="padding: 0.5rem; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">
+                            <input type="checkbox" name="selected_orders" value="{{ order.id }}">
+                        </td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">#{{ order.id }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.product.name }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.quantity }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">${{ order.total_price }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.order_date|date:"F d, Y" }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">{{ order.status }}</td>
+                        <td style="padding: 0.5rem; border-bottom: 1px solid #ddd;">
+                            {% if order.status == 'Pending' %}
+                                <a href="{% url 'pay_order' order.id %}" style="padding: 0.3rem; background-color: #333; color: #fff; text-decoration: none;">Pay</a>
+                            {% endif %}
+                            {% if order.status == 'Pending' or order.status == 'Paid' %}
+                                <a href="{% url 'cancel_order' order.id %}" style="padding: 0.3rem; background-color: #d9534f; color: #fff; text-decoration: none; margin-left: 0.5rem;">Cancel Order</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="padding: 0.5rem; text-align: center;">No orders found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem;">
+            <button type="submit" style="padding: 0.5rem; background-color: #333; color: #fff; border: none;">Pay Selected</button>
+        </div>
+    </form>
 {% endblock %}
