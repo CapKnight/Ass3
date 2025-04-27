@@ -4,21 +4,25 @@
 
 {% block content %}
     <h1>Register</h1>
-    <form method="post" action="{% url 'register' %}">
+    {% if messages %}
+        <ul style="color: red;">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
         {% csrf_token %}
-        <div style="margin-bottom: 1rem;">
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
-        </div>
-        <div style="margin-bottom: 1rem;">
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required style="padding: 0.5rem; width: 100%; max-width: 300px;">
-        </div>
-        <button type="submit" style="padding: 0.5rem 1rem; background-color: #333; color: #fff; border: none; cursor: pointer;">Register</button>
+        <label for="id_username">Username:</label>
+        <input type="text" name="username" id="id_username" value="{{ form.username.value|default_if_none:'' }}" required>
+        <br>
+        <label for="id_password1">Password:</label>
+        <input type="password" name="password1" id="id_password1" required>
+        <br>
+        <label for="id_password2">Confirm Password:</label>
+        <input type="password" name="password2" id="id_password2" required>
+        <br>
+        <button type="submit" style="padding: 0.3rem; background-color: #333; color: #fff; border: none; margin-top: 0.5rem;">Register</button>
     </form>
-    <p style="margin-top: 1rem;">Already have an account? <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">Login here</a>.</p>
+    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
 {% endblock %}

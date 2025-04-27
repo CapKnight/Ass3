@@ -1,16 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - Wine Sales{% endblock %}
+{% block title %}Wine Sales{% endblock %}
 
 {% block content %}
     <h1>Welcome to Wine Sales</h1>
-    <p>Browse our collection of fine wines from around the world.</p>
-    <div style="margin-top: 2rem;">
-        <a href="{% url 'product_list' %}" style="margin-right: 1rem; color: #333; text-decoration: none;">View Products</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'order_list' %}" style="color: #333; text-decoration: none;">View Your Orders</a>
-        {% else %}
-            <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">Login to Start Shopping</a>
-        {% endif %}
-    </div>
+    <p>Discover the finest wines from around the world.</p>
+
+    <h2>Recommended Wines</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #f5f5f5; border-bottom: 1px solid #ddd;">
+                <th style="padding: 0.5rem; text-align: left;">Name</th>
+                <th style="padding: 0.5rem; text-align: left;">Country</th>
+                <th style="padding: 0.5rem; text-align: left;">Price</th>
+                <th style="padding: 0.5rem; text-align: left;">Quantity</th>
+                <th style="padding: 0.5rem; text-align: left;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in recommended_products %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 0.5rem;">{{ product.name }}</td>
+                    <td style="padding: 0.5rem;">{{ product.country }}</td>
+                    <td style="padding: 0.5rem;">${{ product.price }}</td>
+                    <td style="padding: 0.5rem;">
+                        <form method="post" action="{% url 'create_order' product.id %}">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory }}" style="width: 60px;">
+                    </td>
+                    <td style="padding: 0.5rem;">
+                            <button type="submit" style="padding: 0.3rem; background-color: #333; color: #fff; border: none;">Add to Order</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 0.5rem; text-align: center;">No recommended products available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
