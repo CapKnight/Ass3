@@ -5,7 +5,7 @@ class Product(models.Model):
     country = models.CharField(max_length=50)
     region = models.CharField(max_length=50)
     winery = models.CharField(max_length=100)
-    rating = models.FloatField()
+    rating = models.FloatField(default=0.0)
     number_of_ratings = models.IntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     year = models.IntegerField(null=True, blank=True)

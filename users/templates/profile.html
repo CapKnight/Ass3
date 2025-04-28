@@ -7,8 +7,8 @@
     {% if user.is_authenticated %}
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email|default:"Not provided" }}</p>
-        <a href="{% url 'logout' %}" style="color: #333; text-decoration: none;">Logout</a>
+        <a href="{% url 'users:logout' %}" style="color: #333; text-decoration: none;">Logout</a>
     {% else %}
-        <p>Please <a href="{% url 'login' %}" style="color: #333; text-decoration: none;">log in</a> to view your profile.</p>
+        <p>Please <a href="{% url 'users:login' %}" style="color: #333; text-decoration: none;">log in</a> to view your profile.</p>
     {% endif %}
 {% endblock %}

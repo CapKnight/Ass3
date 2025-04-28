@@ -37,7 +37,6 @@
     <h1>Admin Dashboard</h1>
     <p>Overview of orders and sales data.</p>
 
-    <!-- 统计卡片 -->
     <div class="stats-container">
         <div class="stat-card">
             <h3>Total Orders</h3>
@@ -61,12 +60,10 @@
         </div>
     </div>
 
-    <!-- 订单趋势图表 -->
     <div class="chart-container">
         <canvas id="ordersChart"></canvas>
     </div>
 
-    <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('ordersChart').getContext('2d');

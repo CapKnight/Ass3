@@ -26,22 +26,25 @@
         .filter-search-form button:hover {
             background-color: #555;
         }
-        .pagination {
-            margin-top: 2rem;
+        .pagination { 
+            margin-top: 1rem;
             text-align: center;
             border: 1px solid #ddd;
             display: inline-block;
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             background-color: #f9f9f9;
-            border-radius: 5px;
+            border-radius: 5px; /* 圆润一点好看 */
         }
+
         .pagination a, .pagination span {
-            margin: 0 0.5rem;
-            padding: 0.3rem 0.8rem;
+            display: inline-block; 
+            margin: 0 0.5rem; 
+            padding: 10px 14px;
             text-decoration: none;
             color: #333;
-            border-radius: 3px;
-            transition: background-color 0.3s;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .pagination a:hover {
             background-color: #ddd;
@@ -97,10 +100,13 @@
         .quantity-form button:hover {
             background-color: #555;
         }
+        .compare-form {
+            margin-top: 0.5rem;
+        }
     </style>
 
     <h1>Our Products</h1>
-    <p>Explore our curated selection of wines.</p>
+    <p>Explore our curated selection of wines. <a href="{% url 'products:compare_products' %}">Compare Selected Products</a></p>
 
     <!-- 筛选和搜索表单 -->
     <form method="get" class="filter-search-form">
@@ -140,31 +146,41 @@
                 <th>Country</th>
                 <th>Price</th>
                 <th>Action</th>
+                <th>Compare</th>
             </tr>
         </thead>
         <tbody>
             {% for product in products %}
                 {% if product.id %}
                     <tr>
-                        <td><a href="{% url 'product_detail' product.id %}">{{ product.name|default:"N/A" }}</a></td>
+                        <td><a href="{% url 'products:product_detail' product.id %}">{{ product.name|default:"N/A" }}</a></td>
                         <td>{{ product.country|default:"N/A" }}</td>
                         <td>${{ product.price|default:"N/A" }}</td>
                         <td>
-                            <form method="post" action="{% url 'create_order' product.id %}" class="quantity-form">
+                            <form method="post" action="{% url 'orders:create_order' product.id %}" class="quantity-form">
                                 {% csrf_token %}
                                 <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory|default:0 }}" required>
                                 <button type="submit">Add to Order</button>
                             </form>
                         </td>
+                        <td>
+                            <form method="post" action="{% url 'products:product_list' %}" class="compare-form">
+                                {% csrf_token %}
+                                <input type="checkbox" name="compare_product" value="{{ product.id }}"
+                                    {% if product.id in request.session.compare_list %}checked{% endif %}
+                                    onchange="this.form.submit()">
+                                <input type="hidden" name="action" value="toggle_compare">
+                            </form>
+                        </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="4" style="text-align: center; color: red;">Invalid product data (ID missing).</td>
+                        <td colspan="5" style="text-align: center; color: red;">Invalid product data (ID missing).</td>
                     </tr>
                 {% endif %}
             {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align: center;">No products available.</td>
+                    <td colspan="5" style="text-align: center;">No products available.</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -173,7 +189,7 @@
     {% if products.has_other_pages %}
         <div class="pagination">
             {% if products.has_previous %}
-                <a href="?page={{ products.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
+                <a href="?page={{ products.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}®ion={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
             {% else %}
                 <span class="disabled">Previous</span>
             {% endif %}
@@ -182,12 +198,12 @@
                 {% if products.number == num %}
                     <span class="current">{{ num }}</span>
                 {% else %}
-                    <a href="?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                    <a href="?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}®ion={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
 
             {% if products.has_next %}
-                <a href="?page={{ products.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}&region={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
+                <a href="?page={{ products.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_region %}®ion={{ selected_region }}{% endif %}{% if selected_winery %}&winery={{ selected_winery }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
             {% else %}
                 <span class="disabled">Next</span>
             {% endif %}

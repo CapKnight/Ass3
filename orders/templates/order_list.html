@@ -65,7 +65,7 @@
             font-size: 0.9rem;
             margin-bottom: 1rem;
         }
-        .modal-content form {
+        .modal-content .payment-fields {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -110,7 +110,7 @@
         </ul>
     {% endif %}
 
-    <form id="pay-selected-form" method="post" action="{% url 'pay_selected_orders' %}">
+    <form id="pay-selected-form" method="post" action="{% url 'orders:pay_selected_orders' %}">
         {% csrf_token %}
         <table>
             <thead>
@@ -139,10 +139,10 @@
                         <td>{{ order.status }}</td>
                         <td>
                             {% if order.status == 'Pending' %}
-                                <a href="{% url 'pay_order' order.id %}" class="pay-button">Pay</a>
+                                <a href="{% url 'orders:pay_order' order.id %}" class="pay-button">Pay</a>
                             {% endif %}
                             {% if order.status == 'Pending' or order.status == 'Paid' %}
-                                <a href="{% url 'cancel_order' order.id %}" class="cancel">Cancel Order</a>
+                                <a href="{% url 'orders:cancel_order' order.id %}" class="cancel">Cancel Order</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -163,7 +163,7 @@
         <div class="modal-content">
             <h2>Simulated Payment</h2>
             <p class="warning">This is a simulated payment. No real information is required.</p>
-            <form id="payment-form">
+            <div class="payment-fields">
                 <label>Card Number</label>
                 <input type="text" placeholder="1234 5678 9012 3456">
                 <label>Expiration Date</label>
@@ -174,7 +174,7 @@
                     <button type="button" class="confirm" id="confirm-payment">Confirm Payment</button>
                     <button type="button" class="cancel" id="cancel-payment">Cancel</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -211,7 +211,6 @@
             });
         });
 
-        // 批量支付按钮
         paySelectedButton.addEventListener('click', (e) => {
             e.preventDefault();
             const selectedOrders = paySelectedForm.querySelectorAll('input[name="selected_orders"]:checked');
@@ -220,12 +219,13 @@
                 return;
             }
             showModal(() => {
-                paySelectedForm.submit(); // 提交批量支付表单
+                paySelectedForm.submit();
             });
         });
 
         // 确认支付
-        confirmButton.addEventListener('click', () => {
+        confirmButton.addEventListener('click', (e) => {
+            e.preventDefault();
             if (currentAction) {
                 currentAction();
             }
@@ -233,7 +233,8 @@
         });
 
         // 取消支付
-        cancelButton.addEventListener('click', () => {
+        cancelButton.addEventListener('click', (e) => {
+            e.preventDefault();
             closeModal();
         });
     </script>

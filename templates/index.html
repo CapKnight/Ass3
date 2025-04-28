@@ -24,7 +24,7 @@
                     <td style="padding: 0.5rem;">{{ product.country }}</td>
                     <td style="padding: 0.5rem;">${{ product.price }}</td>
                     <td style="padding: 0.5rem;">
-                        <form method="post" action="{% url 'create_order' product.id %}">
+                        <form method="post" action="{% url 'orders:create_order' product.id %}">
                             {% csrf_token %}
                             <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory }}" style="width: 60px;">
                     </td>

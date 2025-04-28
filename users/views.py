@@ -5,7 +5,6 @@ from django.contrib import messages
 from django import forms
 from django.contrib.auth.models import User
 
-# 自定义用户注册表单，仅包含用户名和密码
 class SimpleUserCreationForm(UserCreationForm):
     class Meta:
         model = User
@@ -13,7 +12,6 @@ class SimpleUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # 简化密码验证规则
         self.fields['password1'].help_text = None
         self.fields['password2'].help_text = None
         self.fields['password1'].validators = []
@@ -28,7 +26,6 @@ def register_view(request):
             messages.success(request, "Registration successful!")
             return redirect('home')
         else:
-            # 显示详细错误信息
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")

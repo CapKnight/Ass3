@@ -7,73 +7,69 @@
         .product-detail {
             max-width: 800px;
             margin: 0 auto;
+            padding: 1rem;
         }
         .product-detail h1 {
+            font-size: 2rem;
             margin-bottom: 1rem;
         }
-        .product-detail dl {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+        .product-detail p {
+            margin: 0.5rem 0;
         }
-        .product-detail dt {
-            font-weight: bold;
-        }
-        .product-detail dd {
-            margin: 0;
-        }
-        .product-detail .quantity-form {
+        .quantity-form {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-top: 1rem;
         }
-        .product-detail .quantity-form input[type="number"] {
+        .quantity-form input[type="number"] {
             width: 60px;
             padding: 0.3rem;
             border: 1px solid #ddd;
             border-radius: 3px;
         }
-        .product-detail .quantity-form button {
-            padding: 0.5rem 1rem;
+        .quantity-form button {
+            padding: 0.3rem;
             background-color: #333;
             color: #fff;
             border: none;
             border-radius: 3px;
             cursor: pointer;
         }
-        .product-detail .quantity-form button:hover {
+        .quantity-form button:hover {
             background-color: #555;
+        }
+        .compare-form {
+            margin-top: 1rem;
         }
     </style>
 
     <div class="product-detail">
-        <h1>{{ product.name }}</h1>
-        <dl>
-            <dt>Name:</dt>
-            <dd>{{ product.name }}</dd>
-            <dt>Country:</dt>
-            <dd>{{ product.country }}</dd>
-            <dt>Region:</dt>
-            <dd>{{ product.region }}</dd>
-            <dt>Winery:</dt>
-            <dd>{{ product.winery }}</dd>
-            <dt>Rating:</dt>
-            <dd>{{ product.rating }}</dd>
-            <dt>Number of Ratings:</dt>
-            <dd>{{ product.number_of_ratings }}</dd>
-            <dt>Price:</dt>
-            <dd>${{ product.price }}</dd>
-            <dt>Year:</dt>
-            <dd>{{ product.year|default:"N/A" }}</dd>
-            <dt>Inventory:</dt>
-            <dd>{{ product.inventory }}</dd>
-        </dl>
-        <form method="post" action="{% url 'create_order' product.id %}" class="quantity-form">
+        <h1>{{ product.name|default:"N/A" }}</h1>
+        <p><strong>Price:</strong> ${{ product.price|default:"N/A" }}</p>
+        <p><strong>Country:</strong> {{ product.country|default:"N/A" }}</p>
+        <p><strong>Region:</strong> {{ product.region|default:"N/A" }}</p>
+        <p><strong>Winery:</strong> {{ product.winery|default:"N/A" }}</p>
+        <p><strong>Rating:</strong> {{ product.rating|default:"N/A" }}</p>
+        <p><strong>Number of Ratings:</strong> {{ product.number_of_ratings|default:"N/A" }}</p>
+        <p><strong>Year:</strong> {{ product.year|default:"N/A" }}</p>
+        <p><strong>Inventory:</strong> {{ product.inventory|default:"N/A" }}</p>
+
+        <form method="post" action="{% url 'orders:create_order' product.id %}" class="quantity-form">
             {% csrf_token %}
-            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory }}" required>
+            <input type="number" name="quantity" value="1" min="1" max="{{ product.inventory|default:0 }}" required>
             <button type="submit">Add to Order</button>
         </form>
+
+        <form method="post" action="{% url 'products:product_detail' product.id %}" class="compare-form">
+            {% csrf_token %}
+            <input type="checkbox" name="compare_product" value="{{ product.id }}"
+                {% if product.id in request.session.compare_list %}checked{% endif %}
+                onchange="this.form.submit()">
+            <label>Add to Compare</label>
+            <input type="hidden" name="action" value="toggle_compare">
+        </form>
+
+        <p><a href="{% url 'products:compare_products' %}">Compare Selected Products</a></p>
     </div>
 {% endblock %}

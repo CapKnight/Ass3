@@ -48,6 +48,19 @@
             color: #fff;
             text-decoration: underline;
         }
+        .logout-button {
+            color: #ddd; 
+            text-decoration: none; 
+            font-size: 1rem; 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            padding: 0; 
+        }
+        .logout-button:hover {
+            color: #fff; 
+            text-decoration: underline; 
+        }
         /* Main Content */
         main {
             flex: 1;
@@ -97,17 +110,21 @@
             </div>
             <div class="nav-links">
                 <a href="{% url 'home' %}">Home</a>
-                <a href="{% url 'product_list' %}">Products</a>
-                <a href="{% url 'order_list' %}">Orders</a>
+                <a href="{% url 'products:product_list' %}">Products</a>
+                <a href="{% url 'products:compare_products' %}">Compare</a>
+                <a href="{% url 'orders:order_list' %}">Orders</a>
                 {% if user.is_authenticated %}
                     <span>Welcome, {{ user.username }}!</span>
                     {% if user.is_staff %}
-                        <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+                        <a href="{% url 'orders:admin_dashboard' %}">Admin Dashboard</a>
                     {% endif %}
-                    <a href="{% url 'logout' %}">Logout</a>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">Logout</button>
+                    </form>
                 {% else %}
-                    <a href="{% url 'login' %}">Login</a>
-                    <a href="{% url 'register' %}">Register</a>
+                    <a href="{% url 'users:login' %}">Login</a>
+                    <a href="{% url 'users:register' %}">Register</a>
                 {% endif %}
             </div>
         </div>

@@ -4,15 +4,25 @@ from django.db.models import Q
 from .models import Product
 
 def product_list(request):
-    # 获取所有商品
+    if request.method == 'POST' and request.POST.get('action') == 'toggle_compare':
+        product_id = int(request.POST.get('compare_product'))
+        compare_list = request.session.get('compare_list', [])
+        if product_id in compare_list:
+            compare_list.remove(product_id)
+        else:
+            if len(compare_list) < 4:
+                compare_list.append(product_id)
+            else:
+                pass
+        request.session['compare_list'] = compare_list
+        request.session.modified = True
+
     products = Product.objects.all()
 
-    # 获取筛选参数
     country = request.GET.get('country', '')
     region = request.GET.get('region', '')
     winery = request.GET.get('winery', '')
 
-    # 应用筛选
     if country:
         products = products.filter(country=country)
     if region:
@@ -20,7 +30,6 @@ def product_list(request):
     if winery:
         products = products.filter(winery=winery)
 
-    # 获取搜索关键字
     search_query = request.GET.get('search', '')
     if search_query:
         products = products.filter(
@@ -30,7 +39,6 @@ def product_list(request):
             Q(winery__icontains=search_query)
         )
 
-    # 获取价格范围
     min_price = request.GET.get('min_price', '')
     max_price = request.GET.get('max_price', '')
     if min_price:
@@ -46,14 +54,12 @@ def product_list(request):
         except ValueError:
             max_price = ''
 
-    # 获取排序参数
     sort = request.GET.get('sort', '')
     if sort == 'price_asc':
         products = products.order_by('price')
     elif sort == 'price_desc':
         products = products.order_by('-price')
 
-    # 获取筛选选项（增强去重逻辑）
     countries = sorted(set(
         product.country.strip().capitalize()
         for product in Product.objects.all()
@@ -70,8 +76,7 @@ def product_list(request):
         if product.winery
     ))
 
-    # 分页
-    paginator = Paginator(products, 10)  # 每页显示 10 个商品
+    paginator = Paginator(products, 50)
     page = request.GET.get('page')
     try:
         products_page = paginator.page(page)
@@ -80,7 +85,6 @@ def product_list(request):
     except EmptyPage:
         products_page = paginator.page(paginator.num_pages)
 
-    # 传递上下文
     context = {
         'products': products_page,
         'countries': countries,
@@ -97,5 +101,38 @@ def product_list(request):
     return render(request, 'product_list.html', context)
 
 def product_detail(request, product_id):
+    if request.method == 'POST' and request.POST.get('action') == 'toggle_compare':
+        product_id = int(request.POST.get('compare_product'))
+        compare_list = request.session.get('compare_list', [])
+        if product_id in compare_list:
+            compare_list.remove(product_id)
+        else:
+            if len(compare_list) < 4:
+                compare_list.append(product_id)
+            else:
+                print("Limitation: 4")
+                pass
+        request.session['compare_list'] = compare_list
+        request.session.modified = True
+
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'product_detail.html', {'product': product})
+
+def compare_products(request):
+    compare_list = request.session.get('compare_list', [])
+
+    if request.method == 'POST':
+        product_id_to_remove = request.POST.get('remove_product')
+        if product_id_to_remove:
+            product_id_to_remove = int(product_id_to_remove)
+            if product_id_to_remove in compare_list:
+                compare_list.remove(product_id_to_remove)
+                request.session['compare_list'] = compare_list
+                request.session.modified = True
+
+    products = Product.objects.filter(id__in=compare_list)
+
+    context = {
+        'products': products,
+    }
+    return render(request, 'compare.html', {'products': products})
