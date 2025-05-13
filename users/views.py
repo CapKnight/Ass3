@@ -60,7 +60,7 @@ def profile(request):
     if user.is_staff:
         role = "Administrator"
     else:
-        role = "Customer Service"  # 默认非管理员为客服，你可以根据需求调整
+        role = "Customer" 
     context = {
         'username': user.username,
         'date_joined': user.date_joined,
