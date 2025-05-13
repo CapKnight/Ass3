@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 class SimpleUserCreationForm(UserCreationForm):
     class Meta:
@@ -52,3 +53,17 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect('home')
+
+@login_required
+def profile(request):
+    user = request.user
+    if user.is_staff:
+        role = "Administrator"
+    else:
+        role = "Customer Service"  # 默认非管理员为客服，你可以根据需求调整
+    context = {
+        'username': user.username,
+        'date_joined': user.date_joined,
+        'role': role,
+        }
+    return render(request, 'profile.html', context)

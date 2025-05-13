@@ -12,7 +12,7 @@ A Django-based web application for selling wines online, featuring user authenti
   - Pay for individual orders or multiple selected orders.
   - Cancel pending or paid orders (inventory updates accordingly).
   - Simulated payment process with a modal popup for confirmation.
-- **Admin Dashboard**: View order statistics (total orders, revenue, status breakdown) and a line chart of orders over the last 7 days using Chart.js.
+- **Admin Dashboard**: View order statistics (total orders, revenue, status breakdown) and a line chart of orders over the last 7 days using Chart.js. Administrator can see all the orders and edit or cancel them.
 - **Responsive Design**: The application is mobile-friendly with a responsive navigation bar and layout.
 
 ### Account

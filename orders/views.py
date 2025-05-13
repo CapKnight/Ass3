@@ -65,16 +65,26 @@ def pay_selected_orders(request):
 
 @login_required
 def cancel_order(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    if order.status not in ['Pending', 'Paid']:
-        messages.error(request, f"Order #{order.id} cannot be cancelled. Current status: {order.status}.")
-    else:
-        product = order.product
-        product.inventory += order.quantity
-        product.save()
-        order.status = 'Cancelled'
-        order.save()
-        messages.success(request, f"Order #{order.id} has been cancelled successfully!")
+    order = get_object_or_404(Order, id=order_id)
+    
+    # 普通用户只能取消自己的订单，管理员可以取消任何订单
+    if not request.user.is_staff and request.user != order.user:
+        messages.error(request, "You do not have permission to cancel this order.")
+        return redirect('orders:order_list')
+
+    if request.method == 'POST':
+        if order.status in ['Pending', 'Paid']:
+            product = order.product
+            product.inventory += order.quantity
+            product.save()
+            order.status = 'Cancelled'
+            order.save()
+            messages.success(request, f"Order #{order.id} has been cancelled successfully.")
+        else:
+            messages.error(request, f"Order #{order.id} cannot be cancelled. Current status: {order.status}.")
+    
+    if request.user.is_staff:
+        return redirect('orders:admin_dashboard')
     return redirect('orders:order_list')
 
 @login_required
@@ -97,11 +107,15 @@ def admin_dashboard(request):
     ]
     date_labels = [date.strftime('%Y-%m-%d') for date in date_range]
     
+    # 获取所有订单
+    orders = Order.objects.all().order_by('-order_date')
+    
     context = {
         'total_orders': total_orders,
         'total_revenue': total_revenue,
         'status_counts': status_counts,
         'date_labels': json.dumps(date_labels),
         'orders_by_date': json.dumps(orders_by_date),
+        'orders': orders,  # 添加订单列表
     }
     return render(request, 'admin_dashboard.html', context)
